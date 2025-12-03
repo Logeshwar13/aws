@@ -1,0 +1,51 @@
+TEMPORARY TEST RULES - Use these ONLY to test if data saves
+
+If data saves with these rules, then the problem is your Security Rules.
+After testing, REPLACE with proper rules!
+
+===========================================
+FIRESTORE RULES (Temporary - Allow all writes)
+===========================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+
+===========================================
+STORAGE RULES (Temporary - Allow all writes)
+===========================================
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}
+
+===========================================
+INSTRUCTIONS:
+===========================================
+
+1. Go to Firestore Rules: https://console.firebase.google.com/project/first-aws-de44a/firestore/rules
+2. Paste the Firestore rules above
+3. Click "Publish"
+4. Go to Storage Rules: https://console.firebase.google.com/project/first-aws-de44a/storage/rules
+5. Paste the Storage rules above
+6. Click "Publish"
+7. Test your app - data should save now
+8. If it works, REPLACE with proper security rules (see below)
+9. Delete this file after testing
+
+===========================================
+PROPER SECURITY RULES (Use after testing)
+===========================================
+
+See FIRESTORE_SECURITY_RULES.md and STORAGE_SECURITY_RULES.md
+
