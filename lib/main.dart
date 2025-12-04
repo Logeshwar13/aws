@@ -126,6 +126,12 @@ class AwsCloudClubApp extends StatelessWidget {
         bodyMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         labelLarge: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
       ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
+        },
+      ),
     );
   }
 
@@ -205,6 +211,12 @@ class AwsCloudClubApp extends StatelessWidget {
         bodyLarge: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
         bodyMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         labelLarge: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
+        },
       ),
     );
   }

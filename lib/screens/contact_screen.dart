@@ -160,7 +160,7 @@ class _ContactScreenState extends State<ContactScreen> {
         _infoItem(Icons.location_on, 'Address',
             'AWS Cloud Club\nSMVEC\nMadagadipet, Puducherry, India - 605107'),
         const SizedBox(height: 20),
-        _infoItem(Icons.email, 'Email', 'awscloudclub@example.com'),
+        _infoItem(Icons.email, 'Email', 'vishwapandiyan07@gmail.com'),
         const SizedBox(height: 20),
         _infoItem(Icons.phone, 'Phone', '+91 9345671593\n+91 9384157111'),
         const SizedBox(height: 24),

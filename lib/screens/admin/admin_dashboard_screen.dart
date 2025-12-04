@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'event_form_dialog.dart';
@@ -1673,13 +1674,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     final roleCtrl = TextEditingController(text: member?.role ?? '');
     final emailCtrl = TextEditingController(text: member?.email ?? '');
     final avatarCtrl = TextEditingController(text: member?.avatar ?? '');
-    // final skillsCtrl = TextEditingController(text: member != null ? member.skills.join(', ') : ''); // Removed
-    // final profileUrlCtrl = TextEditingController(text: member?.profileUrl ?? ''); // Replaced by image picker
     final bioCtrl = TextEditingController(text: member?.bio ?? '');
     final linkedinCtrl = TextEditingController(text: member?.linkedinUrl ?? '');
     final githubCtrl = TextEditingController(text: member?.githubUrl ?? '');
-    final instagramCtrl = TextEditingController(text: member?.instagramUrl ?? ''); // Renamed
-    // final websiteCtrl = TextEditingController(text: member?.websiteUrl ?? ''); // Removed
+    final instagramCtrl = TextEditingController(text: member?.instagramUrl ?? '');
     final displayOrderCtrl = TextEditingController(
         text: member != null ? member.displayOrder.toString() : '0');
     bool isActive = member?.isActive ?? true;
@@ -1700,208 +1698,204 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               key: formKey,
               child: SingleChildScrollView(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Image Picker
-                    GestureDetector(
-                      onTap: () async {
-                        final ImagePicker picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(
-                            source: ImageSource.gallery);
-                        if (image != null) {
-                          setState(() => pickedImage = image);
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Image Picker
+                  GestureDetector(
+                    onTap: () async {
+                      final ImagePicker picker = ImagePicker();
+                      final XFile? image = await picker.pickImage(
+                          source: ImageSource.gallery);
+                      if (image != null) {
+                        final croppedFile = await ImageCropper().cropImage(
+                          sourcePath: image.path,
+                          uiSettings: [
+                            AndroidUiSettings(
+                              toolbarTitle: 'Crop Image',
+                              toolbarColor: Theme.of(context).colorScheme.primary,
+                              toolbarWidgetColor: Colors.white,
+                              initAspectRatio: CropAspectRatioPreset.square,
+                              lockAspectRatio: false,
+                            ),
+                            IOSUiSettings(
+                              title: 'Crop Image',
+                            ),
+                            WebUiSettings(
+                              context: context,
+                            ),
+                          ],
+                        );
+                        if (croppedFile != null) {
+                          setState(() => pickedImage = XFile(croppedFile.path));
                         }
-                      },
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.1),
-                          shape: BoxShape.circle,
-                          image: pickedImage != null
-                              ? DecorationImage(
-                                  image: NetworkImage(pickedImage!.path),
-                                  fit: BoxFit.cover,
-                                )
-                              : (member?.profileUrl != null &&
-                                      member!.profileUrl!.isNotEmpty)
-                                  ? DecorationImage(
-                                      image: NetworkImage(member.profileUrl!),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
-                        ),
-                        child: pickedImage == null &&
-                                (member?.profileUrl == null ||
-                                    member!.profileUrl!.isEmpty)
-                            ? Icon(
-                                Icons.add_a_photo,
-                                size: 40,
-                                color: Theme.of(context).colorScheme.primary,
+                      }
+                    },
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.1),
+                        shape: BoxShape.circle,
+                        image: pickedImage != null
+                            ? DecorationImage(
+                                image: NetworkImage(pickedImage!.path),
+                                fit: BoxFit.cover,
                               )
-                            : null,
+                            : (member?.profileUrl != null &&
+                                    member!.profileUrl!.isNotEmpty)
+                                ? DecorationImage(
+                                    image: NetworkImage(member.profileUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                       ),
+                      child: pickedImage == null &&
+                              (member?.profileUrl == null ||
+                                  member!.profileUrl!.isEmpty)
+                          ? Icon(
+                              Icons.add_a_photo,
+                              size: 40,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          : null,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Tap to select profile image',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 20),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap to select profile image',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 20),
 
-                    // Category Dropdown
-                    DropdownButtonFormField<String>(
-                      value: category,
-                      decoration: const InputDecoration(
-                        labelText: 'Member Type',
-                        prefixIcon: Icon(Icons.category),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'Lead', child: Text('Lead')),
-                        DropdownMenuItem(value: 'Member', child: Text('Member')),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => category = value);
-                        }
-                      },
+                  // Category Dropdown
+                  DropdownButtonFormField<String>(
+                    value: category,
+                    decoration: const InputDecoration(
+                      labelText: 'Member Type',
+                      prefixIcon: Icon(Icons.category),
                     ),
-                    const SizedBox(height: 12),
+                    items: const [
+                      DropdownMenuItem(value: 'Lead', child: Text('Lead')),
+                      DropdownMenuItem(value: 'Member', child: Text('Member')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => category = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
 
-                    TextFormField(
-                      controller: nameCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Full Name',
-                        prefixIcon: Icon(Icons.person),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Name is required';
-                        }
-                        return null;
-                      },
+                  TextFormField(
+                    controller: nameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Full Name',
+                      prefixIcon: Icon(Icons.person),
                     ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: roleCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Role / Title',
-                        prefixIcon: Icon(Icons.work_outline),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Role is required';
-                        }
-                        return null;
-                      },
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Name is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: roleCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Role / Title',
+                      prefixIcon: Icon(Icons.work_outline),
                     ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: emailCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Email is required';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Invalid email';
-                        }
-                        return null;
-                      },
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Role is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: emailCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email_outlined),
                     ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: avatarCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Avatar initials (optional)',
-                        prefixIcon: Icon(Icons.font_download),
-                      ),
-                      maxLength: 3,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Email is required';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Invalid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: avatarCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Avatar initials (optional)',
+                      prefixIcon: Icon(Icons.font_download),
                     ),
-                    // const SizedBox(height: 12),
-                    // TextFormField(
-                    //   controller: profileUrlCtrl,
-                    //   decoration: const InputDecoration(
-                    //     labelText: 'Profile Image URL',
-                    //     prefixIcon: Icon(Icons.image_outlined),
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 12),
-                    // TextFormField(
-                    //   controller: skillsCtrl,
-                    //   decoration: const InputDecoration(
-                    //     labelText: 'Skills (comma separated)',
-                    //     prefixIcon: Icon(Icons.star_outline),
-                    //   ),
-                    // ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: bioCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Bio / Description',
-                        prefixIcon: Icon(Icons.description_outlined),
-                      ),
-                      maxLines: 3,
+                    maxLength: 3,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: bioCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Bio / Description',
+                      prefixIcon: Icon(Icons.description_outlined),
                     ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: linkedinCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'LinkedIn URL',
-                        prefixIcon: Icon(Icons.business_center),
-                      ),
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: linkedinCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'LinkedIn URL',
+                      prefixIcon: Icon(Icons.business_center),
                     ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: githubCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'GitHub URL',
-                        prefixIcon: Icon(Icons.code),
-                      ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: githubCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'GitHub URL',
+                      prefixIcon: Icon(Icons.code),
                     ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: instagramCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Instagram URL',
-                        prefixIcon: Icon(Icons.camera_alt),
-                      ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: instagramCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Instagram URL',
+                      prefixIcon: Icon(Icons.camera_alt),
                     ),
-                    // const SizedBox(height: 12),
-                    // TextFormField(
-                    //   controller: websiteCtrl,
-                    //   decoration: const InputDecoration(
-                    //     labelText: 'Website URL',
-                    //     prefixIcon: Icon(Icons.public),
-                    //   ),
-                    // ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: displayOrderCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Display Order',
-                        prefixIcon: Icon(Icons.format_list_numbered),
-                      ),
-                      keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: displayOrderCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Display Order',
+                      prefixIcon: Icon(Icons.format_list_numbered),
                     ),
-                    const SizedBox(height: 8),
-                    SwitchListTile.adaptive(
-                      value: isActive,
-                      onChanged: (value) => setState(() => isActive = value),
-                      title: const Text('Visible on members page'),
-                      subtitle: const Text('Disable to hide without deleting'),
-                    ),
-                  ],
-                ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 8),
+                  SwitchListTile.adaptive(
+                    value: isActive,
+                    onChanged: (value) => setState(() => isActive = value),
+                    title: const Text('Visible on members page'),
+                    subtitle: const Text('Disable to hide without deleting'),
+                  ),
+                ],
               ),
             ),
-            actions: [
+          ),
+          actions: [
               TextButton(
                 onPressed: saving ? null : () => Navigator.of(context).pop(),
                 child: const Text('Cancel'),
@@ -1913,18 +1907,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                         if (!formKey.currentState!.validate()) return;
                         setState(() => saving = true);
                         try {
-                          // final skills = skillsCtrl.text
-                          //     .split(',')
-                          //     .map((s) => s.trim())
-                          //     .where((s) => s.isNotEmpty)
-                          //     .toList();
                           final avatar = avatarCtrl.text.trim();
-                          // final profileUrl = profileUrlCtrl.text.trim();
                           final bio = bioCtrl.text.trim();
                           final linkedin = linkedinCtrl.text.trim();
                           final github = githubCtrl.text.trim();
                           final instagram = instagramCtrl.text.trim();
-                          // final website = websiteCtrl.text.trim();
                           final order =
                               int.tryParse(displayOrderCtrl.text.trim()) ?? 0;
                           final membersProv = context.read<MembersProvider>();
@@ -1935,14 +1922,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                               role: roleCtrl.text.trim(),
                               email: emailCtrl.text.trim(),
                               avatar: avatar.isEmpty ? null : avatar,
-                              // skills: skills,
-                              profileUrl: member.profileUrl, // Keep existing if not changed
-                              imageFile: pickedImage, // Pass new image
+                              profileUrl: member.profileUrl,
+                              imageFile: pickedImage,
                               bio: bio.isEmpty ? null : bio,
                               linkedinUrl: linkedin.isEmpty ? null : linkedin,
                               githubUrl: github.isEmpty ? null : github,
                               instagramUrl: instagram.isEmpty ? null : instagram,
-                              // websiteUrl: website.isEmpty ? null : website,
                               displayOrder: order,
                               isActive: isActive,
                               category: category,
@@ -1953,14 +1938,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                               role: roleCtrl.text.trim(),
                               email: emailCtrl.text.trim(),
                               avatar: avatar.isEmpty ? null : avatar,
-                              // skills: skills,
-                              // profileUrl: profileUrl.isEmpty ? null : profileUrl,
                               imageFile: pickedImage,
                               bio: bio.isEmpty ? null : bio,
                               linkedinUrl: linkedin.isEmpty ? null : linkedin,
                               githubUrl: github.isEmpty ? null : github,
                               instagramUrl: instagram.isEmpty ? null : instagram,
-                              // websiteUrl: website.isEmpty ? null : website,
                               displayOrder: order,
                               isActive: isActive,
                               category: category,
