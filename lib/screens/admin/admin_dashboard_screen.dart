@@ -1778,7 +1778,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                       prefixIcon: Icon(Icons.category),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'Lead', child: Text('Lead')),
+                      DropdownMenuItem(value: 'Lead', child: Text('Core Lead')),
                       DropdownMenuItem(value: 'Member', child: Text('Member')),
                     ],
                     onChanged: (value) {
