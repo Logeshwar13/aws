@@ -39,7 +39,7 @@ class AwsCloudClubApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'AWS Cloud Club',
             debugShowCheckedModeBanner: false,
-            themeMode: themeProvider.themeMode,
+            themeMode: ThemeMode.dark,
             theme: _buildLightTheme(),
             darkTheme: _buildDarkTheme(),
             routerConfig: appRouter,

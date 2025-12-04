@@ -139,9 +139,15 @@ class _AppBarWidgetState extends State<AppBarWidget>
         actions: isSmall
             ? _mobileMenu(context, isDark)
             : [
-                _desktopTabBar(context, theme, isDark),
+                _desktopTabBar(context, theme, true),
                 const SizedBox(width: 8),
-                _ThemeToggleButton(),
+                _HoverIconButton(
+                  icon: Icons.sports_esports,
+                  onPressed: () {
+                    context.go('/?section=game');
+                  },
+                  tooltip: 'Play Game',
+                ),
                 const SizedBox(width: 16),
               ],
       ),
@@ -265,7 +271,13 @@ class _AppBarWidgetState extends State<AppBarWidget>
 
   List<Widget> _mobileMenu(BuildContext context, bool isDark) {
     return [
-      _ThemeToggleButton(),
+      _HoverIconButton(
+        icon: Icons.sports_esports,
+        onPressed: () {
+          context.go('/?section=game');
+        },
+        tooltip: 'Play Game',
+      ),
       const SizedBox(width: 8),
       IconButton(
         icon: Icon(
@@ -403,19 +415,7 @@ class _AppBarWidgetState extends State<AppBarWidget>
   }
 }
 
-class _ThemeToggleButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
-    final isDark = themeProvider.isDarkMode;
 
-    return _HoverIconButton(
-      icon: isDark ? Icons.light_mode : Icons.dark_mode,
-      onPressed: () => themeProvider.toggleTheme(),
-      tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-    );
-  }
-}
 
 class _HoverIconButton extends StatefulWidget {
   final IconData icon;

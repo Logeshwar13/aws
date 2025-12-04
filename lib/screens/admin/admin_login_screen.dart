@@ -83,7 +83,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   Color(0xFF071A3A),
                   Color(0xFF1A4BA0),
                   Color(0xFF00C9FF),
-                  Color(0xFF92FE9D),
+                  Color(0xFFFFD700),
                 ],
                 options:  AnimatedMeshGradientOptions(
                   frequency: 2,

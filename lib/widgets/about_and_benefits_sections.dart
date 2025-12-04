@@ -326,8 +326,8 @@ class AboutAndBenefitsSections extends StatelessWidget {
             crossAxisCount: cols,
             crossAxisSpacing: isMobile ? 12 : 20,
             mainAxisSpacing: isMobile ? 12 : 20,
-            // Adjusted aspect ratio to prevent overflow (made cards slightly taller)
-            childAspectRatio: cols == 1 ? 2.3 : 2.4,
+            // Adjusted aspect ratio to make cards more compact (reduced height)
+            childAspectRatio: cols == 1 ? 3.0 : 3.2,
           ),
           itemCount: benefits.length,
           itemBuilder: (context, i) {

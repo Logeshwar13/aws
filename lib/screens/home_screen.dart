@@ -1,11 +1,13 @@
 // lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/hero_section.dart';
 import '../widgets/featured_events_section.dart';
 import '../widgets/about_and_benefits_sections.dart';
 import '../widgets/aws_info_section.dart';
 import '../widgets/cta_section.dart';
+import '../widgets/game_section.dart';
 import '../widgets/footer_widget.dart';
 import '../providers/events_provider.dart';
 import '../widgets/glass_container.dart';
@@ -20,7 +22,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final List<GlobalKey> _sectionKeys = List.generate(6, (_) => GlobalKey());
-  final List<bool> _sectionVisible = List.generate(6, (_) => true);
+  final List<bool> _sectionVisible = List.generate(6, (_) => false);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = GoRouterState.of(context);
+      if (state.queryParams['section'] == 'game') {
+        if (_sectionKeys[4].currentContext != null) {
+          Scrollable.ensureVisible(
+            _sectionKeys[4].currentContext!,
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeInOut,
+          );
+        }
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -100,7 +119,15 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const GlassContainer(
               margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               padding: EdgeInsets.all(20),
-              child: CtaSection(),
+              child: const CtaSection(),
+            ),
+          ),
+          _ScrollTriggeredReveal(
+            key: _sectionKeys[4],
+            isVisible: _sectionVisible[4],
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: GameSection(),
             ),
           ),
 

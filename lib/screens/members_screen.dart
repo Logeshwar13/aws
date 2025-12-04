@@ -34,124 +34,164 @@ class MembersScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       body: CustomScrollView(
         slivers: [
+          // 1. Header Section
           SliverToBoxAdapter(
-            child: Container(
-              width: double.infinity,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isMobile ? 12 : (isSmall ? 20 : 40),
-                  vertical: isMobile ? 20 : 40,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            child: AnimationConfiguration.synchronized(
+              duration: const Duration(milliseconds: 600),
+              child: SlideAnimation(
+                verticalOffset: 50,
+                child: FadeInAnimation(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isMobile ? 12 : (isSmall ? 20 : 40),
+                      vertical: isMobile ? 20 : 40,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 4,
-                          height: isMobile ? 32 : 40,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                theme.colorScheme.primary,
-                                theme.colorScheme.tertiary,
-                              ],
+                        Row(
+                          children: [
+                            Container(
+                              width: 4,
+                              height: isMobile ? 32 : 40,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    theme.colorScheme.primary,
+                                    theme.colorScheme.tertiary,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Flexible(
-                          child: Text(
-                            'Our Members',
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: isMobile ? 20 : null,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: isMobile ? 6 : 8),
-                    Text(
-                      'Meet the amazing team behind AWS Cloud Club',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: isMobile ? 13 : null,
-                      ),
-                    ),
-                    SizedBox(height: isMobile ? 20 : 32),
-                    if (loading)
-                      SizedBox(
-                        height: 200,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      )
-                    else if (members.isEmpty)
-                      SizedBox(
-                        height: 200,
-                        child: Center(
-                          child: Text(
-                            'Members will appear here once added by admins.',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withOpacity(0.7),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      )
-                    else if (isMobile)
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: members.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 16),
-                        itemBuilder: (context, i) {
-                          return AnimationConfiguration.staggeredList(
-                            position: i,
-                            duration: const Duration(milliseconds: 600),
-                            child: SlideAnimation(
-                              verticalOffset: 50,
-                              child: FadeInAnimation(
-                                child: _EnhancedMemberCard(
-                                  member: members[i],
-                                  isMobile: isMobile,
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                'Our Members',
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: isMobile ? 20 : null,
                                 ),
                               ),
                             ),
-                          );
-                        },
-                      )
-                    else
-                      Container(
-                        width: double.infinity,
-                        alignment: Alignment.topLeft,
-                        child: Wrap(
-                          spacing: 20,
-                          runSpacing: 20,
-                          alignment: WrapAlignment.start,
-                          children: members.map((member) {
-                            return SizedBox(
-                              width: 310,
-                              child: _EnhancedMemberCard(
-                                member: member,
-                                isMobile: isMobile,
-                              ),
-                            );
-                          }).toList(),
+                          ],
                         ),
-                      ),
-                    SizedBox(height: isMobile ? 20 : 40),
-                  ],
+                        SizedBox(height: isMobile ? 6 : 8),
+                        Text(
+                          'Meet the amazing team behind AWS Cloud Club',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: isMobile ? 13 : null,
+                          ),
+                        ),
+                        SizedBox(height: isMobile ? 20 : 32),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
+
+          // 2. Members List (Lazy Loaded)
+          if (loading)
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 200,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+            )
+          else if (members.isEmpty)
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 200,
+                child: Center(
+                  child: Text(
+                    'Members will appear here once added by admins.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            )
+          else if (isMobile)
+            // Mobile: Simple SliverList
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, i) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 600),
+                        child: SlideAnimation(
+                          verticalOffset: 50,
+                          child: FadeInAnimation(
+                            child: _EnhancedMemberCard(
+                              member: members[i],
+                              isMobile: isMobile,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  childCount: members.length,
+                ),
+              ),
+            )
+          else
+            // Desktop: Chunked SliverList to mimic Wrap but with lazy loading
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: isSmall ? 20 : 40),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    // Chunk size of 8 members per "row" (or block)
+                    // This prevents rendering ALL members at once in a single Wrap
+                    const chunkSize = 8;
+                    final startIndex = index * chunkSize;
+                    final endIndex = (startIndex + chunkSize < members.length)
+                        ? startIndex + chunkSize
+                        : members.length;
+                    
+                    if (startIndex >= members.length) return null;
+
+                    final chunk = members.sublist(startIndex, endIndex);
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Wrap(
+                        spacing: 20,
+                        runSpacing: 20,
+                        alignment: WrapAlignment.start,
+                        children: chunk.map((member) {
+                          return SizedBox(
+                            width: 310,
+                            child: _EnhancedMemberCard(
+                              member: member,
+                              isMobile: isMobile,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  },
+                  childCount: (members.length / 8).ceil(),
+                ),
+              ),
+            ),
+
+          // 3. Footer
           const SliverFillRemaining(
             hasScrollBody: false,
             child: Column(

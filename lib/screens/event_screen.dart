@@ -283,7 +283,7 @@ class EventsScreen extends StatelessWidget {
             title,
             style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF146EB4),
+              color: Colors.white,
               fontSize: isMobile ? 20 : null,
             ),
           ),
