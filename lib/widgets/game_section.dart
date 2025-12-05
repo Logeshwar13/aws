@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'gradient_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class GameSection extends StatefulWidget {
   const GameSection({super.key});
@@ -113,8 +114,11 @@ class _GameSectionState extends State<GameSection> with SingleTickerProviderStat
                         ),
                         SizedBox(height: isMobile ? 24 : 32),
                         _GradientButton(
-                          onPressed: () {
-                            // TODO: Navigate to game
+                          onPressed: () async {
+                            const url = 'https://space-nine-puce.vercel.app/';
+                            if (await canLaunchUrl(Uri.parse(url))) {
+                              await launchUrl(Uri.parse(url));
+                            }
                           },
                           icon: Icons.sports_esports,
                           label: 'Play Now',
