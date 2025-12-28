@@ -20,7 +20,10 @@ class _EventFormDialogState extends State<EventFormDialog> {
   final _desc = TextEditingController();
   final _location = TextEditingController();
   final _regLink = TextEditingController();
+  final _speakers = TextEditingController();
   DateTime _date = DateTime.now().add(const Duration(days: 1));
+  DateTime? _endTime;
+  String _mode = 'Offline';
   XFile? _image;
   String? _imageUrl; // For displaying existing or picked image
   bool _featured = false;
@@ -39,7 +42,10 @@ class _EventFormDialogState extends State<EventFormDialog> {
       _desc.text = e.description;
       _location.text = e.location;
       _regLink.text = e.registrationLink ?? '';
+      _speakers.text = e.speakers ?? '';
       _date = e.eventDate;
+      _endTime = e.endTime;
+      _mode = e.mode ?? 'Offline';
       _featured = e.isFeatured;
       _imageUrl = e.imageUrl; // Set existing image URL
     }
@@ -50,7 +56,9 @@ class _EventFormDialogState extends State<EventFormDialog> {
     _title.dispose();
     _desc.dispose();
     _location.dispose();
+    _location.dispose();
     _regLink.dispose();
+    _speakers.dispose();
     super.dispose();
   }
 
@@ -79,6 +87,9 @@ class _EventFormDialogState extends State<EventFormDialog> {
           imageFile: _image,
           registrationLink: _regLink.text.isEmpty ? null : _regLink.text,
           isFeatured: _featured,
+          mode: _mode,
+          endTime: _endTime,
+          speakers: _speakers.text.isEmpty ? null : _speakers.text,
         );
       } else {
         // For update, include image if new one is selected
@@ -89,6 +100,9 @@ class _EventFormDialogState extends State<EventFormDialog> {
           'location': _location.text,
           'registration_link': _regLink.text.isEmpty ? null : _regLink.text,
           'is_featured': _featured,
+          'mode': _mode,
+          'end_time': _endTime?.toIso8601String(),
+          'speakers': _speakers.text.isEmpty ? null : _speakers.text,
         };
 
         // If new image is selected, upload it first
@@ -102,6 +116,9 @@ class _EventFormDialogState extends State<EventFormDialog> {
             imageFile: _image,
             registrationLink: _regLink.text.isEmpty ? null : _regLink.text,
             isFeatured: _featured,
+            mode: _mode,
+            endTime: _endTime,
+            speakers: _speakers.text.isEmpty ? null : _speakers.text,
           );
           if (tempEvent != null && tempEvent.imageUrl != null) {
             updateData['image_url'] = tempEvent.imageUrl;
@@ -157,6 +174,36 @@ class _EventFormDialogState extends State<EventFormDialog> {
     if (time != null) {
       setState(() {
         _date = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          time.hour,
+          time.minute,
+        );
+      });
+    }
+  }
+
+  Future<void> _selectEndTime() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _endTime ?? _date,
+      firstDate: _date,
+      lastDate: DateTime(2100),
+    );
+    if (!mounted || picked == null) return;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: _endTime != null
+          ? TimeOfDay.fromDateTime(_endTime!)
+          : TimeOfDay.fromDateTime(_date.add(const Duration(hours: 2))),
+    );
+    if (!mounted) return;
+
+    if (time != null) {
+      setState(() {
+        _endTime = DateTime(
           picked.year,
           picked.month,
           picked.day,
@@ -286,6 +333,51 @@ class _EventFormDialogState extends State<EventFormDialog> {
                     prefixIcon: Icon(Icons.link),
                   ),
                   keyboardType: TextInputType.url,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _mode,
+                        decoration: const InputDecoration(
+                          labelText: 'Mode',
+                          prefixIcon: Icon(Icons.category),
+                        ),
+                        items: ['Offline', 'Online']
+                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (v) => setState(() => _mode = v!),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _selectEndTime,
+                        icon: const Icon(Icons.access_time_filled),
+                        label: Text(
+                          _endTime != null
+                              ? _endTime!.toLocal().toString().split('.').first
+                              : 'End Time (Optional)',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _speakers,
+                  decoration: const InputDecoration(
+                    labelText: 'Speakers (Optional)',
+                    prefixIcon: Icon(Icons.mic),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Wrap(

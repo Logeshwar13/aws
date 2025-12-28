@@ -90,6 +90,9 @@ class EventsProvider extends ChangeNotifier {
     XFile? imageFile,
     String? registrationLink,
     bool isFeatured = false,
+    String? mode,
+    DateTime? endTime,
+    String? speakers,
   }) async {
     debugPrint('EventsProvider: createEvent called');
     String? imageUrl;
@@ -127,6 +130,9 @@ class EventsProvider extends ChangeNotifier {
       'registration_link': registrationLink,
       'is_featured': isFeatured,
       'created_at': now.toIso8601String(),
+      'mode': mode,
+      'end_time': endTime?.toIso8601String(),
+      'speakers': speakers,
     };
 
     try {

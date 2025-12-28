@@ -203,23 +203,54 @@ class EventsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     _detailRow(
-                        Icons.calendar_today, event.formattedDate, theme),
+                        Icons.calendar_today, event.formattedDateShort, theme,
+                        color: const Color(0xFF146EB4)),
                     const SizedBox(height: 12),
-                    _detailRow(Icons.location_on, event.location, theme),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Description',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      event.description,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        height: 1.6,
-                      ),
-                    ),
+                    _detailRow(Icons.location_on, event.location, theme,
+                        color: const Color(0xFF00A1C9)),
+                    if (event.mode != null) ...[
+                      const SizedBox(height: 12),
+                      _detailRow(
+                          event.mode == 'Online' ? Icons.laptop : Icons.people,
+                          event.mode!,
+                          theme,
+                          color: const Color(0xFF146EB4)),
+                    ],
+                    if (event.endTime != null) ...[
+                      const SizedBox(height: 12),
+                      _detailRow(Icons.access_time, '', theme,
+                          color: const Color(0xFF00A1C9),
+                          customContent: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Start: ${event.formattedTime}',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: const Color(0xFF00A1C9),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'End: ${event.formattedEndTime}',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: const Color(0xFF00A1C9),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          )),
+                    ] else ...[
+                      const SizedBox(height: 12),
+                      _detailRow(Icons.access_time, event.formattedTime, theme,
+                          color: const Color(0xFF00A1C9)),
+                    ],
+                    if (event.speakers != null &&
+                        event.speakers!.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      _detailRow(Icons.mic, event.speakers!, theme,
+                          color: const Color(0xFFFF9900)),
+                    ],
                     if (event.registrationLink != null) ...[
                       const SizedBox(height: 24),
                       HoverButton(
@@ -245,16 +276,22 @@ class EventsScreen extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(IconData icon, String text, ThemeData theme) {
+  Widget _detailRow(IconData icon, String text, ThemeData theme,
+      {Color? color, Widget? customContent}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: theme.colorScheme.primary),
+        Icon(icon, size: 20, color: color ?? theme.colorScheme.primary),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            text,
-            style: theme.textTheme.bodyLarge,
-          ),
+          child: customContent ??
+              Text(
+                text,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
         ),
       ],
     );

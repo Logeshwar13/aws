@@ -12,6 +12,9 @@ class EventModel {
   final String? registrationLink;
   final bool isFeatured;
   final DateTime createdAt;
+  final String? mode; // 'Online' or 'Offline'
+  final DateTime? endTime;
+  final String? speakers;
 
   EventModel({
     required this.id,
@@ -23,6 +26,9 @@ class EventModel {
     this.registrationLink,
     this.isFeatured = false,
     required this.createdAt,
+    this.mode,
+    this.endTime,
+    this.speakers,
   });
 
   factory EventModel.fromMap(Map<String, dynamic> m) {
@@ -30,6 +36,13 @@ class EventModel {
       if (val is Timestamp) return val.toDate();
       if (val is String) return DateTime.parse(val);
       return DateTime.now(); // Fallback
+    }
+
+    DateTime? parseNullableDate(dynamic val) {
+      if (val == null) return null;
+      if (val is Timestamp) return val.toDate();
+      if (val is String) return DateTime.parse(val);
+      return null;
     }
 
     return EventModel(
@@ -42,6 +55,9 @@ class EventModel {
       registrationLink: m['registration_link'] as String?,
       isFeatured: m['is_featured'] as bool? ?? false,
       createdAt: parseDate(m['created_at']),
+      mode: m['mode'] as String?,
+      endTime: parseNullableDate(m['end_time']),
+      speakers: m['speakers'] as String?,
     );
   }
 
@@ -56,10 +72,14 @@ class EventModel {
       'registration_link': registrationLink,
       'is_featured': isFeatured,
       'created_at': createdAt.toIso8601String(),
+      'mode': mode,
+      'end_time': endTime?.toIso8601String(),
+      'speakers': speakers,
     };
   }
 
   String get formattedDate => DateFormat.yMMMMd().add_jm().format(eventDate);
   String get formattedDateShort => DateFormat.MMMd().format(eventDate);
   String get formattedTime => DateFormat.jm().format(eventDate);
+  String get formattedEndTime => endTime != null ? DateFormat.jm().format(endTime!) : '';
 }

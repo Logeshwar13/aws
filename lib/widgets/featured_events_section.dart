@@ -80,7 +80,7 @@ class FeaturedEventsSection extends StatelessWidget {
   Widget _desktopLayout(BuildContext context, List<EventModel> featured,
       ThemeData theme, bool isMobile) {
     return SizedBox(
-      height: isMobile ? 340 : 400,
+      height: isMobile ? 380 : 450,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: featured.length,
@@ -119,7 +119,7 @@ class FeaturedEventsSection extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(bottom: isMobile ? 16 : 20),
                 child: SizedBox(
-                  height: isMobile ? 340 : 400,
+                  height: isMobile ? 380 : 450,
                   child: EventCard(
                     event: entry.value,
                     isLarge: false,

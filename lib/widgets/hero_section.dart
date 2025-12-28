@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -23,7 +24,7 @@ class HeroSectionWithThreads extends StatelessWidget {
     final isMobile = w < 600;
 
     // Increased height for stats card
-    final heroHeight = isMobile ? 650.0 : (isSmall ? 700.0 : 650.0);
+    final heroHeight = isMobile ? 850.0 : (isSmall ? 900.0 : 850.0);
 
     final content = Padding(
       padding: EdgeInsets.symmetric(
@@ -41,9 +42,8 @@ class HeroSectionWithThreads extends StatelessWidget {
   Widget _desktopLayout(BuildContext context) {
     final theme = Theme.of(context);
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const SizedBox(height: 80),
         AnimationConfiguration.staggeredList(
           position: 0,
           duration: const Duration(milliseconds: 600),
@@ -160,7 +160,7 @@ class HeroSectionWithThreads extends StatelessWidget {
                       ),
                     ],
                   ),
-
+                  const CommunityStatsCard(isSmall: false),
                 ],
               ),
             ),
@@ -179,10 +179,9 @@ class HeroSectionWithThreads extends StatelessWidget {
         verticalOffset: 50,
         child: FadeInAnimation(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 60),
               ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
                   colors: [Color(0xFF00FFFF), Color(0xFF2979FF)],
@@ -289,7 +288,7 @@ class HeroSectionWithThreads extends StatelessWidget {
                   ),
                 ],
               ),
-
+              const CommunityStatsCard(isSmall: true),
             ],
           ),
         ),
@@ -459,65 +458,76 @@ class CommunityStatsCard extends StatelessWidget {
         
         return Container(
           margin: const EdgeInsets.only(top: 40),
-          padding: const EdgeInsets.all(24),
           constraints: BoxConstraints(maxWidth: isSmall ? 400 : 600),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A1F36).withOpacity(0.6),
+          child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.1),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1A4BA0), // Blue
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1A4BA0).withOpacity(0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+            child: Stack(
+              children: [
+                // Background with Blur
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.50),
                     ),
-                  ],
+                  ),
                 ),
-                child: const Icon(
-                  Icons.link,
-                  color: Colors.white,
-                  size: 32,
+                // Content with Border
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1A4BA0), // Blue
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1A4BA0).withOpacity(0.4),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.link,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Cloud Learning Community',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildStatItem('Members', stats['members']?.toString() ?? '0'),
+                          _buildStatItem('Certified', stats['certified']?.toString() ?? '0'),
+                          _buildStatItem('Projects', stats['projects']?.toString() ?? '0'),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Cloud Learning Community',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildStatItem('Members', stats['members']?.toString() ?? '0'),
-                  _buildStatItem('Certified', stats['certified']?.toString() ?? '0'),
-                  _buildStatItem('Projects', stats['projects']?.toString() ?? '0'),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -530,7 +540,7 @@ class CommunityStatsCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF232942).withOpacity(0.8),
+          color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: Colors.white.withOpacity(0.05),

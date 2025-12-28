@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/event_model.dart';
 
 class EventCard extends StatefulWidget {
@@ -34,7 +35,7 @@ class _EventCardState extends State<EventCard> {
       cursor: SystemMouseCursors.click,
       child: SizedBox(
         width: widget.isLarge
-            ? (widget.isMobile ? double.infinity : 320)
+            ? (widget.isMobile ? double.infinity : 420)
             : double.infinity,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -77,190 +78,281 @@ class _EventCardState extends State<EventCard> {
               borderRadius: BorderRadius.circular(widget.isMobile ? 14 : 18),
               color: theme.cardColor,
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: widget.onTap ?? () => context.go('/events'),
-                borderRadius: BorderRadius.circular(widget.isMobile ? 14 : 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(widget.isMobile ? 14 : 18),
-                            ),
-                            child: widget.event.imageUrl != null
-                                ? CachedNetworkImage(
-                                    imageUrl: widget.event.imageUrl!,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            const Color(0xFF146EB4)
-                                                .withOpacity(0.3),
-                                            const Color(0xFF00A1C9)
-                                                .withOpacity(0.2),
-                                          ],
-                                        ),
-                                      ),
-                                      child: const Center(
-                                          child: CircularProgressIndicator()),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(widget.isMobile ? 14 : 18),
+                        ),
+                        child: widget.event.imageUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: widget.event.imageUrl!,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        const Color(0xFF146EB4)
+                                            .withOpacity(0.3),
+                                        const Color(0xFF00A1C9)
+                                            .withOpacity(0.2),
+                                      ],
                                     ),
-                                    errorWidget: (context, url, error) {
-                                      debugPrint('IMAGE LOAD ERROR: $url -> $error');
-                                      return Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            const Color(0xFF146EB4)
-                                                .withOpacity(0.3),
-                                            const Color(0xFF00A1C9)
-                                                .withOpacity(0.2),
-                                          ],
-                                        ),
-                                      ),
-                                      child: const Center(
-                                          child: Icon(Icons.event, size: 64)),
-                                    );
-                                    },
-                                  )
-                                : Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          const Color(0xFF146EB4)
-                                              .withOpacity(0.3),
-                                          const Color(0xFF00A1C9)
-                                              .withOpacity(0.2),
-                                        ],
-                                      ),
-                                    ),
-                                    child: const Center(
-                                        child: Icon(Icons.event, size: 64)),
                                   ),
-                          ),
-                          if (widget.event.isFeatured)
-                            Positioned(
-                              top: widget.isMobile ? 8 : 12,
-                              right: widget.isMobile ? 8 : 12,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: widget.isMobile ? 10 : 12,
-                                    vertical: widget.isMobile ? 5 : 6),
+                                  child: const Center(
+                                      child: CircularProgressIndicator()),
+                                ),
+                                errorWidget: (context, url, error) {
+                                  debugPrint('IMAGE LOAD ERROR: $url -> $error');
+                                  return Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        const Color(0xFF146EB4)
+                                            .withOpacity(0.3),
+                                        const Color(0xFF00A1C9)
+                                            .withOpacity(0.2),
+                                      ],
+                                    ),
+                                  ),
+                                  child: const Center(
+                                      child: Icon(Icons.event, size: 64)),
+                                );
+                                },
+                              )
+                            : Container(
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
+                                  gradient: LinearGradient(
                                     colors: [
-                                      Color(0xFFFF6B6B), // Vibrant Red
-                                      Color(0xFFFF8E53), // Vibrant Orange
+                                      const Color(0xFF146EB4)
+                                          .withOpacity(0.3),
+                                      const Color(0xFF00A1C9)
+                                          .withOpacity(0.2),
                                     ],
                                   ),
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.red.withOpacity(0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
                                 ),
-                                child: Text(
-                                  'Featured',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: widget.isMobile ? 10 : 12,
-                                  ),
-                                ),
+                                child: const Center(
+                                    child: Icon(Icons.event, size: 64)),
                               ),
-                            ),
-                        ],
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: EdgeInsets.all(widget.isMobile ? 12 : 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
+                      if (widget.event.isFeatured)
+                        Positioned(
+                          top: widget.isMobile ? 8 : 12,
+                          right: widget.isMobile ? 8 : 12,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFD700).withOpacity(0.9),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFFFD700).withOpacity(0.4),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.star,
+                              color: Colors.white,
+                              size: widget.isMobile ? 16 : 20,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: EdgeInsets.all(widget.isMobile ? 10 : 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          widget.event.title,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: widget.isMobile ? 14 : 16,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: widget.isMobile ? 6 : 8),
+                        Row(
                           children: [
-                            Text(
-                              widget.event.title,
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF146EB4),
-                                fontSize: widget.isMobile ? 15 : 18,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: widget.isMobile ? 4 : 6),
-                            Row(
-                              children: [
-                                Icon(Icons.calendar_today,
-                                    size: widget.isMobile ? 13 : 15,
-                                    color: const Color(0xFF146EB4)),
-                                SizedBox(width: widget.isMobile ? 4 : 6),
-                                Expanded(
-                                  child: Text(
-                                    widget.event.formattedDateShort,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontSize: widget.isMobile ? 11 : 13,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: widget.isMobile ? 4 : 6),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on,
-                                    size: widget.isMobile ? 13 : 15,
-                                    color: const Color(0xFF00A1C9)),
-                                SizedBox(width: widget.isMobile ? 4 : 6),
-                                Expanded(
-                                  child: Text(
-                                    widget.event.location,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontSize: widget.isMobile ? 11 : 13,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            HoverButton(
-                              onPressed:
-                                  widget.onTap ?? () => context.go('/events'),
-                              isMobile: widget.isMobile,
+                            Icon(Icons.calendar_today,
+                                size: widget.isMobile ? 12 : 14,
+                                color: const Color(0xFF146EB4)),
+                            SizedBox(width: widget.isMobile ? 4 : 5),
+                            Expanded(
                               child: Text(
-                                'View Details',
-                                style: TextStyle(
-                                    fontSize: widget.isMobile ? 12 : 14),
+                                widget.event.formattedDateShort,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontSize: widget.isMobile ? 10 : 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
                         ),
-                      ),
+                        SizedBox(height: widget.isMobile ? 4 : 5),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on,
+                                size: widget.isMobile ? 12 : 14,
+                                color: const Color(0xFF00A1C9)),
+                            SizedBox(width: widget.isMobile ? 4 : 5),
+                            Expanded(
+                              child: Text(
+                                widget.event.location,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontSize: widget.isMobile ? 10 : 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: widget.isMobile ? 5 : 6),
+                        // Horizontal chips for mode, time, and speakers
+                        Wrap(
+                          spacing: widget.isMobile ? 4 : 6,
+                          runSpacing: widget.isMobile ? 4 : 6,
+                          children: [
+                            if (widget.event.mode != null)
+                              _buildInfoChip(
+                                icon: widget.event.mode == 'Online'
+                                    ? Icons.laptop
+                                    : Icons.people,
+                                label: widget.event.mode!,
+                                color: const Color(0xFF146EB4),
+                              ),
+                            if (widget.event.endTime != null)
+                              _buildInfoChip(
+                                icon: Icons.access_time,
+                                label:
+                                    '${widget.event.formattedTime} - ${widget.event.formattedEndTime}',
+                                color: const Color(0xFF00A1C9),
+                              ),
+                            if (widget.event.speakers != null &&
+                                widget.event.speakers!.isNotEmpty)
+                              _buildInfoChip(
+                                icon: Icons.mic,
+                                label: widget.event.speakers!,
+                                color: const Color(0xFFFF9900),
+                                maxWidth: widget.isMobile ? 150 : 180,
+                              ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            if (widget.event.registrationLink != null &&
+                                widget.event.registrationLink!.isNotEmpty)
+                              Expanded(
+                                child: HoverButton(
+                                  onPressed: () async {
+                                    final uri = Uri.parse(
+                                        widget.event.registrationLink!);
+                                    if (await canLaunchUrl(uri)) {
+                                      await launchUrl(uri);
+                                    }
+                                  },
+                                  isMobile: widget.isMobile,
+                                  child: Text(
+                                    'Register Now',
+                                    style: TextStyle(
+                                        fontSize: widget.isMobile ? 12 : 14),
+                                  ),
+                                ),
+                              ),
+                            if (widget.event.registrationLink != null &&
+                                widget.event.registrationLink!.isNotEmpty)
+                              const SizedBox(width: 8),
+                            Expanded(
+                              child: HoverButton(
+                                onPressed: widget.onTap ??
+                                    () => context.go('/events'),
+                                isMobile: widget.isMobile,
+                                child: Text(
+                                  'View Details',
+                                  style: TextStyle(
+                                      fontSize: widget.isMobile ? 12 : 14),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildInfoChip({
+    required IconData icon,
+    required String label,
+    required Color color,
+    double? maxWidth,
+  }) {
+    final chip = Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: widget.isMobile ? 6 : 8,
+        vertical: widget.isMobile ? 4 : 5,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: widget.isMobile ? 11 : 12, color: color),
+          SizedBox(width: widget.isMobile ? 3 : 4),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: widget.isMobile ? 10 : 11,
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (maxWidth != null) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: chip,
+      );
+    }
+    return chip;
   }
 }
 
