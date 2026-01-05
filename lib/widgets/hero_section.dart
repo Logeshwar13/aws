@@ -122,7 +122,7 @@ class HeroSectionWithThreads extends StatelessWidget {
                   Container(
                     constraints: const BoxConstraints(maxWidth: 650),
                     child: Text(
-                      'The first AWS Cloud Club in Puducherry, dedicated to providing hands-on cloud computing education, practical upskilling,\nand networking opportunities.',
+                      'The first AWS Cloud Club in Puducherry, dedicated to providing hands-on cloud computing education, practical upskilling,\\nand networking opportunities.',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: Colors.white.withOpacity(0.9),
@@ -518,7 +518,11 @@ class CommunityStatsCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildStatItem('Members', stats['members']?.toString() ?? '0'),
+                          _buildStatItem(
+                            'Members', 
+                            (stats['members']?.toString() ?? '0') + 
+                            ((stats['showPlusOnMembers'] ?? false) ? ' +' : '')
+                          ),
                           _buildStatItem('Certified', stats['certified']?.toString() ?? '0'),
                           _buildStatItem('Projects', stats['projects']?.toString() ?? '0'),
                         ],

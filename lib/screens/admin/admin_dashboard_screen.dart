@@ -71,6 +71,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     final membersCtrl = TextEditingController(text: stats['members']?.toString() ?? '0');
     final certifiedCtrl = TextEditingController(text: stats['certified']?.toString() ?? '0');
     final projectsCtrl = TextEditingController(text: stats['projects']?.toString() ?? '0');
+    bool showPlusOnMembers = stats['showPlusOnMembers'] ?? false;
 
     if (!mounted) return;
 
@@ -78,27 +79,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Edit Community Stats'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: membersCtrl,
-              decoration: const InputDecoration(labelText: 'Members Count'),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: certifiedCtrl,
-              decoration: const InputDecoration(labelText: 'Certified Count'),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: projectsCtrl,
-              decoration: const InputDecoration(labelText: 'Projects Count'),
-              keyboardType: TextInputType.number,
-            ),
-          ],
+        content: StatefulBuilder(
+          builder: (context, setState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: membersCtrl,
+                decoration: const InputDecoration(labelText: 'Members Count'),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              CheckboxListTile(
+                title: const Text('Show "+" on Members Count'),
+                subtitle: const Text('Display as "650+" instead of "650"'),
+                value: showPlusOnMembers,
+                onChanged: (value) {
+                  setState(() {
+                    showPlusOnMembers = value ?? false;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: certifiedCtrl,
+                decoration: const InputDecoration(labelText: 'Certified Count'),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: projectsCtrl,
+                decoration: const InputDecoration(labelText: 'Projects Count'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -112,6 +126,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                   'members': int.tryParse(membersCtrl.text) ?? 0,
                   'certified': int.tryParse(certifiedCtrl.text) ?? 0,
                   'projects': int.tryParse(projectsCtrl.text) ?? 0,
+                  'showPlusOnMembers': showPlusOnMembers,
                 });
                 if (context.mounted) {
                   Navigator.pop(context);
@@ -747,20 +762,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                   child: const Icon(Icons.event, color: Colors.white),
                 ),
         ),
-        title: Row(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
-                e.title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
+            Text(
+              e.title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            if (e.isFeatured)
+            if (e.isFeatured) ...[
+              const SizedBox(height: 6),
               Container(
-                margin: const EdgeInsets.only(left: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary,
@@ -775,6 +791,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                   ),
                 ),
               ),
+            ],
           ],
         ),
         subtitle: Column(
